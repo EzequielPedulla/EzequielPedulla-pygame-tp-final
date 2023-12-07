@@ -80,9 +80,9 @@ class Jugador(pygame.sprite.Sprite):
         self.shoot_sound = pygame.mixer.Sound('assets\sounds/fire_shoot.mp3')
         self.shoot_sound.set_volume(0.2)
         self.heal_sound.set_volume(9)
-        self.coin_sound.set_volume(9)
+        self.coin_sound.set_volume(0.8)
         self.enemy_hit_sound.set_volume(0.7)
-        self.respawn_sound.set_volume(1.5)
+        self.respawn_sound.set_volume(9)
 
     def walk(self, direccion):
 

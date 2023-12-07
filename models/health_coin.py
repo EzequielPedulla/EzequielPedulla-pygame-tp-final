@@ -9,7 +9,3 @@ class HealthCoin(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
-    def update(self):
-        # Puedes agregar alguna animación o lógica adicional si es necesario
-        pass

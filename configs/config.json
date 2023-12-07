@@ -20,7 +20,7 @@
     "jugador": {
       "speed_walk": 6,
       "gravedad": 8,
-      "jump_power": 20,
+      "jump_power": 15,
       "frame_rate": 100,
       "move_rate_ms": 20,
       "y_start_jump": 0,

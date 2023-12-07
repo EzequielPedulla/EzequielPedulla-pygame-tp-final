@@ -14,7 +14,7 @@ class Game:
         self.stage_number = 1
         self.stage = None
         cancion = pygame.mixer.music.load("assets/sounds/musica_fondo.mp3")
-        pygame.mixer.music.set_volume(0.05)
+        pygame.mixer.music.set_volume(0.2)
         pygame.mixer.music.play(-1)
 
     def run_stage(self, stage_name: str):

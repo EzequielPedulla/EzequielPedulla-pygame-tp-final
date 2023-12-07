@@ -67,8 +67,7 @@ class Jugador(pygame.sprite.Sprite):
         self.puntaje_total = 0
         self.collected_coins = 0
         self.level_complete = False
-        self.last_damage_time = pygame.time.get_ticks()
-        self.damage_cooldown = 3000
+
         self.reset_counter = 0
         self.respawn_sound = pygame.mixer.Sound(
             'assets\sounds/respawn.mp3')
@@ -80,10 +79,10 @@ class Jugador(pygame.sprite.Sprite):
             'assets\sounds\heal.mp3')
         self.shoot_sound = pygame.mixer.Sound('assets\sounds/fire_shoot.mp3')
         self.shoot_sound.set_volume(0.2)
-        self.heal_sound.set_volume(2)
-        self.coin_sound.set_volume(0.2)
-        self.enemy_hit_sound.set_volume(0.2)
-        self.respawn_sound.set_volume(7)
+        self.heal_sound.set_volume(9)
+        self.coin_sound.set_volume(9)
+        self.enemy_hit_sound.set_volume(0.7)
+        self.respawn_sound.set_volume(1.5)
 
     def walk(self, direccion):
 
@@ -127,7 +126,7 @@ class Jugador(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
 
     # Verifica si alguna tecla está siendo presionada (KEYDOWN)
-        if any(keys):
+        if (keys):
             if keys[pygame.K_LEFT]:
                 self.walk(DIRECCION_L)
             if keys[pygame.K_RIGHT]:
@@ -144,9 +143,12 @@ class Jugador(pygame.sprite.Sprite):
 
     def hacer_movimiento(self, delta_ms, lista_plataformas):
 
-        self.tiempo_transcurrido_movimiento += delta_ms
+        # actualizamos la posisicon del personaje en pantalla
 
+        self.tiempo_transcurrido_movimiento += delta_ms
+        # verificamos si paso el tiempo suficiente
         if self.tiempo_transcurrido_movimiento >= self.move_rate_ms:
+            # si la distancia en y es mayor a la altura de salto y no esta saltando
             if abs(self.rect.y) - abs(self.y_start_jump) > self.jump_height and self.is_jump:
 
                 self.move_y = 0
@@ -155,16 +157,18 @@ class Jugador(pygame.sprite.Sprite):
             self.add_y(self.move_y)
 
         if not (self.is_on_platform(lista_plataformas)):
+            # si no esta en la plataforma agregamos gravedad
             self.add_y(self.gravity)
         elif self.is_jump:
             self.is_jump = False
 
     def is_on_platform(self, lista_plataformas):
-
+        # verificamos si el jugador esta sobre el suelo
         retorno = False
         if self.rect.y >= GROUND_LEVEL:
             retorno = True
         else:
+            # verificamos si estamos en contacto con la plataforma
             for plataforma in lista_plataformas:
                 if (self.rect_ground_colliction.colliderect(plataforma.rect_ground_colliction)):
                     retorno = True
@@ -172,6 +176,7 @@ class Jugador(pygame.sprite.Sprite):
         return retorno
 
     def add_x(self, delta_x):
+        # actualizamos la posicion del personaje
         self.rect.x += delta_x
         self.rect_ground_colliction.x += delta_x
 
@@ -181,13 +186,16 @@ class Jugador(pygame.sprite.Sprite):
 
     def hacer_animacion(self, delta_ms):
 
-        self.tiempo_transcurrido_animacion += delta_ms
+        # actualiza la animacion del personaje
 
+        self.tiempo_transcurrido_animacion += delta_ms
+        # verificamos si paso el tiempo suficiente
         if self.tiempo_transcurrido_animacion >= self.frame_rate_ms:
             self.tiempo_transcurrido_animacion = 0
         if (self.frame < len(self.animation) - 1):
             self.frame += 1
         else:
+            # si el frame es igual al ultimo la reinicia
             self.frame = 0
 
     def limitar_posicion_pantalla(self):
@@ -211,18 +219,7 @@ class Jugador(pygame.sprite.Sprite):
             self.rect.y = ALTO_VENTANA - self.rect.h
             self.rect_ground_colliction.y = self.rect.y + self.rect.h - 10
 
-    def update_position(self, delta_ms):
-        self.tiempo_transcurrido_movimiento += delta_ms
-        if self.tiempo_transcurrido_movimiento >= self.move_rate_ms:
-            # Actualizar la posición aquí
-            self.tiempo_transcurrido_movimiento = 0
-
-    def update_animation(self, delta_ms):
-        self.tiempo_transcurrido_animacion += delta_ms
-        if self.tiempo_transcurrido_animacion >= self.frame_rate_ms:
-            # Actualizar la animación aquí
-            self.tiempo_transcurrido_animacion = 0
-
+# almacenamos las balas del jugador
     @property
     def get_bullets(self):
         return self.bullet_group
@@ -242,6 +239,7 @@ class Jugador(pygame.sprite.Sprite):
 
             self.is_alive = False
             self.reset(0, 0)
+            self.respawn_sound.play()
 
     def shoot_fire(self):
         if self.ready:
@@ -258,6 +256,7 @@ class Jugador(pygame.sprite.Sprite):
     def recharge(self):
         if not self.ready:
             current_time = pygame.time.get_ticks()
+            # agregamos un cooldown para disparar
             if current_time - self.fire_time >= self.fire_cooldown:
                 self.ready = True
 
@@ -296,7 +295,6 @@ class Jugador(pygame.sprite.Sprite):
         self.rect.y = y
         self.health_bar.current_health = 100
         self.is_alive = True
-        self.bullet_group.empty()
         self.level_complete = False
         self.last_damage_time = pygame.time.get_ticks()
         self.ready = True

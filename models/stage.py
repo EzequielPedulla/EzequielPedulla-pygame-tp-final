@@ -13,7 +13,7 @@ class Stage:
 
         self.configs = abrir_configuraciones().get(stage_name)
         self.jugador = Jugador(0, 0, self.configs)
-        self.jugador.reset(0, 0)
+
         self.screen = screen
         self.enemy_group = pygame.sprite.Group()
         self.enemy_group.add(cargar_enemigos(self.configs))
@@ -45,6 +45,10 @@ class Stage:
         self.jugador.check_coin_collision(self.coin_group)
         self.jugador.check_life_consumable_collision(
             self.healt_coins_group)
+        self.jugador.update(delta_ms, self.plataforma_group,
+                            self.screen, self.coin_group)
+        self.jugador.draw(self.screen)
+        self.jugador.health_bar.draw(self.screen)
         for plataforma in self.plataforma_group:
             plataforma.draw(self.screen)
         for plataforma in self.plataforma_trampa_group:
@@ -65,33 +69,30 @@ class Stage:
 
         for plataforma_trampa in self.plataforma_trampa_group:
             if self.jugador.rect.colliderect(plataforma_trampa.rect_ground_colliction):
-                current_time = pygame.time.get_ticks()
-                if current_time - self.jugador.last_damage_time >= self.jugador.damage_cooldown:
-                    self.jugador.enemy_hit_sound.play()
-                    self.jugador.reduce_health_trampa()
-
-        self.jugador.update(delta_ms, self.plataforma_group,
-                            self.screen, self.coin_group)
-        self.jugador.draw(self.screen)
-        self.jugador.health_bar.draw(self.screen)
+                self.jugador.enemy_hit_sound.play()
+                self.jugador.reduce_health_trampa()
 
         for bullet in self.jugador.get_bullets:
             hits = pygame.sprite.spritecollide(bullet, self.enemy_group, False)
             for hit_enemy in hits:
                 hit_enemy.reduce_health()
+                self.jugador.enemy_hit_sound.play()
                 bullet.kill()
                 self.jugador.add_score(200)
             bullet.update()
             bullet.draw(self.screen)
-        font = pygame.font.Font(None, 36)
-        puntaje_surface = font.render(
-            f"Puntaje: {self.jugador.puntaje_total}", True, (255, 255, 255))
-        self.screen.blit(puntaje_surface, (10, 10))
+
         tiempo_transcurrido = pygame.time.get_ticks()//1000
 
         if tiempo_transcurrido >= self.game_timer:
             pygame.quit()
             sys.exit()
+
+        font = pygame.font.Font(None, 36)
+        puntaje_surface = font.render(
+            f"Puntaje: {self.jugador.puntaje_total}", True, (255, 255, 255))
+        self.screen.blit(puntaje_surface, (10, 10))
+
         text_tiempo_restante = font.render(
             f'Tiempo restante: {self.game_timer - tiempo_transcurrido}', True, (255, 255, 255))
         self.screen.blit(text_tiempo_restante, (500, 10))
